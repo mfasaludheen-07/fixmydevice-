@@ -1,7 +1,15 @@
 <?php
+
+if (php_sapi_name() !== 'cli') {
+    http_response_code(403);
+    die("Access denied.\n");
+}
+
+require_once __DIR__ . '/../config/database.php';
+
 try {
-    $pdo = new PDO('mysql:host=localhost', 'root', '');
-    echo "CONNECTED_SUCCESS";
+    $db = Database::getInstance()->connect();
+    echo "CONNECTED_SUCCESS\n";
 } catch (Exception $e) {
-    echo "CONNECTION_ERROR: " . $e->getMessage();
+    echo "CONNECTION_ERROR\n";
 }

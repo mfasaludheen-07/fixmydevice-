@@ -1,6 +1,7 @@
 # Environment & Local Configuration
 .env
-.env.local
+.env.*
+!.env.example
 *.log
 
 # System Files
@@ -18,3 +19,7 @@ public/uploads/*
 .vscode/
 *.sublime-workspace
 *.sublime-project
+
+# Temporary / Cache Files
+*.tmp
+*.bak

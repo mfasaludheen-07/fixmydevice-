@@ -20,9 +20,9 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="<?= !empty($baseUrl) ? rtrim($baseUrl, '/') : '' ?>/favicon.svg">
-    <link rel="alternate icon" type="image/x-icon" href="<?= !empty($baseUrl) ? rtrim($baseUrl, '/') : '' ?>/favicon.ico">
+    <link rel="icon" type="image/svg+xml" href="<?= (!empty($baseUrl) && $baseUrl !== '/') ? rtrim($baseUrl, '/') : '' ?>/favicon.svg">
+    <link rel="alternate icon" type="image/x-icon" href="<?= (!empty($baseUrl) && $baseUrl !== '/') ? rtrim($baseUrl, '/') : '' ?>/favicon.ico">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="<?= !empty($baseUrl) ? rtrim($baseUrl, '/') : '' ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?= (!empty($baseUrl) && $baseUrl !== '/') ? rtrim($baseUrl, '/') : '' ?>/assets/css/style.css">
 </head>
 <body>

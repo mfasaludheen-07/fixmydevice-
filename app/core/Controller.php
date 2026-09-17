@@ -22,9 +22,19 @@ abstract class Controller
 
     public function render($viewName, $data = [], $withLayout = true)
     {
-        $scriptDir = dirname($_SERVER['SCRIPT_NAME']);
-        $baseUrl = rtrim(str_replace('\\', '/', $scriptDir), '/');
-        if ($baseUrl === '') $baseUrl = '/';
+        $scriptDir = dirname($_SERVER['SCRIPT_NAME'] ?? '');
+        $cleanDir = rtrim(str_replace('\\', '/', $scriptDir), '/');
+        
+        // If running in local subfolder like /FixMyDevice where assets reside under public/
+        $docRoot = rtrim(str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? ''), '/');
+        if ($cleanDir !== '' && !file_exists($docRoot . $cleanDir . '/assets') && file_exists(__DIR__ . '/../../public/assets')) {
+            $baseUrl = $cleanDir . '/public';
+        } else {
+            $baseUrl = $cleanDir;
+        }
+        if ($baseUrl === '') {
+            $baseUrl = '/';
+        }
         $data['baseUrl'] = $baseUrl;
 
         extract($data);
@@ -55,15 +65,32 @@ abstract class Controller
 
     protected function redirect($path)
     {
-        $scriptDir = dirname($_SERVER['SCRIPT_NAME']);
-        $baseUrl = rtrim(str_replace('\\', '/', $scriptDir), '/');
-        
         if (strpos($path, 'http') === 0) {
             header("Location: " . $path);
-        } else {
-            $path = ltrim($path, '/');
-            header("Location: index.php?url=" . $path);
+            exit;
         }
+
+        $scriptDir = dirname($_SERVER['SCRIPT_NAME'] ?? '');
+        $cleanDir = rtrim(str_replace('\\', '/', $scriptDir), '/');
+        $path = ltrim($path, '/');
+
+        $useQueryRouting = isset($_GET['url']) || (isset($_SERVER['QUERY_STRING']) && strpos($_SERVER['QUERY_STRING'], 'url=') !== false);
+
+        if ($cleanDir !== '' && $cleanDir !== '/') {
+            if ($useQueryRouting) {
+                $target = $cleanDir . '/index.php?url=' . $path;
+            } else {
+                $target = $cleanDir . '/' . $path;
+            }
+        } else {
+            if ($useQueryRouting) {
+                $target = '/index.php?url=' . $path;
+            } else {
+                $target = '/' . ($path === 'home' ? '' : $path);
+            }
+        }
+
+        header("Location: " . $target);
         exit;
     }
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Root entry point redirector to public directory
+ * FixMyDevice - Application Entry Point
+ * Proxies requests to public/index.php
  */
-header("Location: public/");
-exit;
+require_once __DIR__ . '/public/index.php';

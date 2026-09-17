@@ -1,0 +1,33 @@
+{
+    # Global options
+    admin off
+    auto_https off
+    log {
+        level WARN
+    }
+}
+
+:{$PORT:80} {
+    root * /app/public
+    encode zstd gzip
+
+    # Block direct PHP execution in uploads directory
+    @blocked_uploads {
+        path /uploads/*.php
+    }
+    respond @blocked_uploads 403
+
+    # Block access to hidden files and version control
+    @dotfiles {
+        path */.*
+    }
+    respond @dotfiles 403
+
+    # Serve static assets directly (CSS, JS, images, icons, fonts)
+    file_server
+
+    # Execute dynamic PHP requests via FrankenPHP worker
+    php_server {
+        index index.php
+    }
+}

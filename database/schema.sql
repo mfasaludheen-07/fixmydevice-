@@ -1,4 +1,5 @@
 -- FixMyDevice Hardware Ticketing System Schema
+-- Production Ready MySQL Schema
 
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -38,6 +39,9 @@ CREATE TABLE IF NOT EXISTS tickets (
     estimated_cost DECIMAL(10, 2) DEFAULT 0.00,
     preferred_date DATE NULL,
     attachment_url VARCHAR(255) NULL,
+    location_lat DECIMAL(10, 7) DEFAULT NULL,
+    location_lng DECIMAL(10, 7) DEFAULT NULL,
+    location_address VARCHAR(500) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -78,3 +82,19 @@ CREATE TABLE IF NOT EXISTS reviews (
     FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Initial Seed: Service Categories
+INSERT INTO categories (id, name, slug, icon, description) VALUES
+(1, 'Smart TVs & Displays', 'smart-tvs', 'tv', 'LED, OLED, QLED, Smart TVs, and monitors repair & screen replacement.'),
+(2, 'Refrigerators & Freezers', 'refrigerators', 'refrigerator', 'Single door, double door, side-by-side, and commercial freezer maintenance.'),
+(3, 'Washing Machines & Dryers', 'washing-machines', 'washer', 'Front load, top load, semi-automatic washers and clothes dryers.'),
+(4, 'Air Conditioners & HVAC', 'air-conditioners', 'wind', 'Split ACs, window ACs, inverter AC servicing and gas refill.'),
+(5, 'Laptops, PCs & Electronics', 'laptops-pcs', 'laptop', 'Laptops, desktop PCs, motherboards, power supply and hardware upgrades.'),
+(6, 'Microwave Ovens & Kitchenware', 'microwaves', 'microwave', 'Microwave ovens, induction cooktops, dishwashers, and small kitchen electronics.')
+ON DUPLICATE KEY UPDATE name=VALUES(name);
+
+-- Initial Seed: Default Staff Accounts (passwords: admin123, tech123)
+INSERT INTO users (id, name, email, password_hash, phone, address, role) VALUES
+(1, 'System Admin', 'admin@fixmydevice.com', '$2y$10$wO3mYkE1Jq1J.J9gA4rLteXfU9fIe9Z6x4P3Q8p1kYgL7fM8o0k2S', '+1 800 555 0199', '100 Service HQ Blvd, Tech City', 'admin'),
+(2, 'Alex Miller (Technician)', 'tech@fixmydevice.com', '$2y$10$yF3mZkE2Jq2J.K9hB5sMteYgV0gJf0Z7y5Q4R9q2lZhM8gN9p1k3T', '+1 800 555 0244', 'Technician Center Hub 4', 'technician')
+ON DUPLICATE KEY UPDATE email=VALUES(email);

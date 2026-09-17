@@ -40,6 +40,14 @@ class Router
                 $this->controller = 'HomeController';
                 $this->method = 'index';
                 unset($url[0]);
+            } elseif ($firstSegment === 'complaints') {
+                $this->controller = 'TicketController';
+                $this->method = 'dashboard';
+                unset($url[0]);
+            } elseif ($firstSegment === 'admin') {
+                $this->controller = 'AdminController';
+                $this->method = 'dashboard';
+                unset($url[0]);
             } else {
                 $controllerName = ucfirst($firstSegment) . 'Controller';
                 $controllerFile = __DIR__ . '/../controllers/' . $controllerName . '.php';
@@ -83,9 +91,9 @@ class Router
                 return;
             }
         } else {
-            // No action method provided in URL (e.g. ?url=admin or ?url=ticket)
+            // No action method provided in URL (e.g. ?url=admin, /admin, /complaints)
             if ($this->isActionCallable($controllerInstance, $this->method)) {
-                // default method (index) exists
+                // Pre-resolved method exists (e.g. AuthController::login, TicketController::dashboard)
             } elseif ($this->isActionCallable($controllerInstance, 'dashboard')) {
                 // Fallback to dashboard for admin/ticket/technician controllers
                 $this->method = 'dashboard';
@@ -136,9 +144,42 @@ class Router
 
     private function parseUrl()
     {
-        if (isset($_GET['url'])) {
+        // 1. Explicit query parameter ?url= (maintains backward compatibility with all relative links)
+        if (isset($_GET['url']) && trim($_GET['url']) !== '') {
             return explode('/', filter_var(rtrim($_GET['url'], '/'), FILTER_SANITIZE_URL));
         }
+
+        // 2. PATH_INFO (if rewritten as index.php/login)
+        if (!empty($_SERVER['PATH_INFO'])) {
+            $path = trim($_SERVER['PATH_INFO'], '/');
+            if ($path !== '') {
+                return explode('/', filter_var($path, FILTER_SANITIZE_URL));
+            }
+        }
+
+        // 3. Clean REQUEST_URI routing (e.g., /login, /track, /complaints, /admin)
+        if (!empty($_SERVER['REQUEST_URI'])) {
+            $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '';
+            $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+            $scriptDir = dirname($scriptName);
+
+            // Strip script name or subdirectory prefix if present
+            if ($scriptName !== '' && strpos($requestUri, $scriptName) === 0) {
+                $requestUri = substr($requestUri, strlen($scriptName));
+            } elseif ($scriptDir !== '/' && $scriptDir !== '\\' && $scriptDir !== '' && strpos($requestUri, $scriptDir) === 0) {
+                $requestUri = substr($requestUri, strlen($scriptDir));
+            }
+
+            $path = trim($requestUri, '/');
+            if (strpos($path, 'index.php') === 0) {
+                $path = trim(substr($path, 9), '/');
+            }
+
+            if ($path !== '') {
+                return explode('/', filter_var($path, FILTER_SANITIZE_URL));
+            }
+        }
+
         return [];
     }
 }

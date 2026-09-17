@@ -2,40 +2,82 @@
 
 class Database
 {
-    private $host = "localhost";
-    private $dbname = "fixmydevice";
-    private $username = "root";
-    private $password = "";
+    private $host;
+    private $port;
+    private $dbname;
+    private $username;
+    private $password;
     private static $instance = null;
     private $pdo = null;
 
+    private static function loadEnv()
+    {
+        $envFile = __DIR__ . '/../.env';
+        if (file_exists($envFile) && is_readable($envFile)) {
+            $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if ($line === '' || strpos($line, '#') === 0 || strpos($line, '=') === false) {
+                    continue;
+                }
+                list($key, $val) = explode('=', $line, 2);
+                $key = trim($key);
+                $val = trim($val, " \t\n\r\0\x0B\"'");
+                if (getenv($key) === false && !isset($_ENV[$key])) {
+                    putenv("{$key}={$val}");
+                    $_ENV[$key] = $val;
+                }
+            }
+        }
+    }
+
+    private static function getEnvVar($key, $default = '')
+    {
+        $val = getenv($key);
+        if ($val !== false && $val !== '') {
+            return $val;
+        }
+        if (isset($_ENV[$key]) && $_ENV[$key] !== '') {
+            return $_ENV[$key];
+        }
+        if (isset($_SERVER[$key]) && $_SERVER[$key] !== '') {
+            return $_SERVER[$key];
+        }
+        return $default;
+    }
+
     public function __construct()
     {
-        try {
-            // Connect without dbname first to ensure database exists
-            $pdoInit = new PDO(
-                "mysql:host={$this->host};charset=utf8mb4",
-                $this->username,
-                $this->password
-            );
-            $pdoInit->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $pdoInit->exec("CREATE DATABASE IF NOT EXISTS `{$this->dbname}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;");
+        self::loadEnv();
 
-            // Now connect to the target database
-            $this->pdo = new PDO(
-                "mysql:host={$this->host};dbname={$this->dbname};charset=utf8mb4",
-                $this->username,
-                $this->password
-            );
-            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-            $this->pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+        // Read database configuration with local XAMPP fallbacks
+        $this->host = self::getEnvVar('DB_HOST', self::getEnvVar('MYSQLHOST', 'localhost'));
+        $this->port = self::getEnvVar('DB_PORT', self::getEnvVar('MYSQLPORT', '3306'));
+        $this->dbname = self::getEnvVar('DB_NAME', self::getEnvVar('MYSQLDATABASE', 'fixmydevice'));
+        $this->username = self::getEnvVar('DB_USER', self::getEnvVar('MYSQLUSER', 'root'));
+        $this->password = self::getEnvVar('DB_PASSWORD', self::getEnvVar('MYSQLPASSWORD', ''));
+
+        try {
+            $dsn = "mysql:host={$this->host};port={$this->port};dbname={$this->dbname};charset=utf8mb4";
+
+            $options = [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+            ];
+
+            $this->pdo = new PDO($dsn, $this->username, $this->password, $options);
 
         } catch (PDOException $e) {
             error_log("FixMyDevice Database Connection Error: " . $e->getMessage());
-            die("<div style='font-family:sans-serif;max-width:500px;margin:60px auto;padding:24px;border:1px solid #e2e8f0;border-radius:12px;text-align:center;'>
-                <h3 style='color:#e11d48;'>Database Connection Error</h3>
-                <p style='color:#64748b;'>Could not connect to the database service. Please verify your MySQL server is running in XAMPP.</p>
+
+            if (!headers_sent()) {
+                http_response_code(500);
+            }
+
+            die("<div style='font-family:sans-serif;max-width:520px;margin:60px auto;padding:28px;border:1px solid #e2e8f0;border-radius:12px;text-align:center;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);'>
+                <h3 style='color:#e11d48;margin-bottom:12px;'>Database Connection Error</h3>
+                <p style='color:#64748b;line-height:1.6;'>Could not connect to the database service. Please verify your database server is running and configuration environment variables are set.</p>
             </div>");
         }
     }

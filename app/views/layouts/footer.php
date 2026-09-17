@@ -57,6 +57,6 @@
     </div>
 </footer>
 
-<script src="assets/js/app.js"></script>
+<script src="<?= (!empty($baseUrl) && $baseUrl !== '/') ? rtrim($baseUrl, '/') : '' ?>/assets/js/app.js"></script>
 </body>
 </html>

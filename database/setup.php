@@ -1,19 +1,22 @@
 <?php
 
+// Prevent public web execution
+if (php_sapi_name() !== 'cli') {
+    http_response_code(403);
+    die("Access denied: Database setup can only be executed via the command-line interface (CLI).\n");
+}
+
 echo "Setting up FixMyDevice Database...\n";
 
-try {
-    // Connect directly to MySQL server without database selected
-    $pdo = new PDO("mysql:host=localhost;charset=utf8mb4", "root", "");
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+require_once __DIR__ . '/../config/database.php';
 
-    $pdo->exec("DROP DATABASE IF EXISTS fixmydevice;");
-    $pdo->exec("CREATE DATABASE fixmydevice CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;");
-    $pdo->exec("USE fixmydevice;");
+try {
+    $dbInstance = Database::getInstance();
+    $pdo = $dbInstance->connect();
 
     // 1. Create Users
     $pdo->exec("
-    CREATE TABLE users (
+    CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(100) NOT NULL,
         email VARCHAR(100) NOT NULL UNIQUE,
@@ -22,24 +25,24 @@ try {
         address TEXT,
         role ENUM('customer', 'technician', 'admin') DEFAULT 'customer',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ");
 
     // 2. Create Categories
     $pdo->exec("
-    CREATE TABLE categories (
+    CREATE TABLE IF NOT EXISTS categories (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(100) NOT NULL,
         slug VARCHAR(100) NOT NULL UNIQUE,
         icon VARCHAR(50) DEFAULT 'tv',
         description TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ");
 
     // 3. Create Tickets
     $pdo->exec("
-    CREATE TABLE tickets (
+    CREATE TABLE IF NOT EXISTS tickets (
         id INT AUTO_INCREMENT PRIMARY KEY,
         ticket_code VARCHAR(30) NOT NULL UNIQUE,
         user_id INT NOT NULL,
@@ -65,12 +68,12 @@ try {
         CONSTRAINT fk_tkt_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
         CONSTRAINT fk_tkt_cat FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
         CONSTRAINT fk_tkt_tech FOREIGN KEY (technician_id) REFERENCES users(id) ON DELETE SET NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ");
 
     // 4. Create History
     $pdo->exec("
-    CREATE TABLE ticket_history (
+    CREATE TABLE IF NOT EXISTS ticket_history (
         id INT AUTO_INCREMENT PRIMARY KEY,
         ticket_id INT NOT NULL,
         changed_by_user_id INT NOT NULL,
@@ -80,12 +83,12 @@ try {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         CONSTRAINT fk_hist_tkt FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
         CONSTRAINT fk_hist_usr FOREIGN KEY (changed_by_user_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ");
 
     // 5. Create Comments
     $pdo->exec("
-    CREATE TABLE ticket_comments (
+    CREATE TABLE IF NOT EXISTS ticket_comments (
         id INT AUTO_INCREMENT PRIMARY KEY,
         ticket_id INT NOT NULL,
         user_id INT NOT NULL,
@@ -94,12 +97,12 @@ try {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         CONSTRAINT fk_cmnt_tkt FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
         CONSTRAINT fk_cmnt_usr FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ");
 
     // 6. Create Reviews
     $pdo->exec("
-    CREATE TABLE reviews (
+    CREATE TABLE IF NOT EXISTS reviews (
         id INT AUTO_INCREMENT PRIMARY KEY,
         ticket_id INT NOT NULL UNIQUE,
         user_id INT NOT NULL,
@@ -108,44 +111,52 @@ try {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         CONSTRAINT fk_rev_tkt FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
         CONSTRAINT fk_rev_usr FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ");
 
-    echo "[OK] Database & Schema created successfully.\n";
+    echo "[OK] Tables verified / created successfully.\n";
 
-    // 1. Seed Categories
-    $categories = [
-        ['Smart TVs & Displays', 'smart-tvs', 'tv', 'LED, OLED, QLED, Smart TVs, and monitors repair & screen replacement.'],
-        ['Refrigerators & Freezers', 'refrigerators', 'refrigerator', 'Single door, double door, side-by-side, and commercial freezer maintenance.'],
-        ['Washing Machines & Dryers', 'washing-machines', 'washer', 'Front load, top load, semi-automatic washers and clothes dryers.'],
-        ['Air Conditioners & HVAC', 'air-conditioners', 'wind', 'Split ACs, window ACs, inverter AC servicing and gas refill.'],
-        ['Laptops, PCs & Electronics', 'laptops-pcs', 'laptop', 'Laptops, desktop PCs, motherboards, power supply and hardware upgrades.'],
-        ['Microwave Ovens & Kitchenware', 'microwaves', 'microwave', 'Microwave ovens, induction cooktops, dishwashers, and small kitchen electronics.']
-    ];
+    // 1. Seed Categories if empty
+    $catCount = (int)$pdo->query("SELECT COUNT(*) FROM categories")->fetchColumn();
+    if ($catCount === 0) {
+        $categories = [
+            ['Smart TVs & Displays', 'smart-tvs', 'tv', 'LED, OLED, QLED, Smart TVs, and monitors repair & screen replacement.'],
+            ['Refrigerators & Freezers', 'refrigerators', 'refrigerator', 'Single door, double door, side-by-side, and commercial freezer maintenance.'],
+            ['Washing Machines & Dryers', 'washing-machines', 'washer', 'Front load, top load, semi-automatic washers and clothes dryers.'],
+            ['Air Conditioners & HVAC', 'air-conditioners', 'wind', 'Split ACs, window ACs, inverter AC servicing and gas refill.'],
+            ['Laptops, PCs & Electronics', 'laptops-pcs', 'laptop', 'Laptops, desktop PCs, motherboards, power supply and hardware upgrades.'],
+            ['Microwave Ovens & Kitchenware', 'microwaves', 'microwave', 'Microwave ovens, induction cooktops, dishwashers, and small kitchen electronics.']
+        ];
 
-    $catStmt = $pdo->prepare("INSERT INTO categories (name, slug, icon, description) VALUES (?, ?, ?, ?)");
-    foreach ($categories as $cat) {
-        $catStmt->execute($cat);
+        $catStmt = $pdo->prepare("INSERT INTO categories (name, slug, icon, description) VALUES (?, ?, ?, ?)");
+        foreach ($categories as $cat) {
+            $catStmt->execute($cat);
+        }
+        echo "[OK] Categories seeded.\n";
+    } else {
+        echo "[OK] Categories already exist.\n";
     }
-    echo "[OK] Categories seeded.\n";
 
-    // 2. Seed Default Operational Staff Accounts (Securely Hashed)
-    $adminPasswordHash = password_hash('admin123', PASSWORD_DEFAULT);
-    $techPasswordHash = password_hash('tech123', PASSWORD_DEFAULT);
+    // 2. Seed Default Operational Staff Accounts if empty
+    $userCount = (int)$pdo->query("SELECT COUNT(*) FROM users WHERE role IN ('admin', 'technician')")->fetchColumn();
+    if ($userCount === 0) {
+        $adminPasswordHash = password_hash('admin123', PASSWORD_DEFAULT);
+        $techPasswordHash = password_hash('tech123', PASSWORD_DEFAULT);
 
-    $users = [
-        ['System Admin', 'admin@fixmydevice.com', $adminPasswordHash, '+1 800 555 0199', '100 Service HQ Blvd, Tech City', 'admin'],
-        ['Alex Miller (Technician)', 'tech@fixmydevice.com', $techPasswordHash, '+1 800 555 0244', 'Technician Center Hub 4', 'technician']
-    ];
+        $users = [
+            ['System Admin', 'admin@fixmydevice.com', $adminPasswordHash, '+1 800 555 0199', '100 Service HQ Blvd, Tech City', 'admin'],
+            ['Alex Miller (Technician)', 'tech@fixmydevice.com', $techPasswordHash, '+1 800 555 0244', 'Technician Center Hub 4', 'technician']
+        ];
 
-    $userStmt = $pdo->prepare("INSERT INTO users (name, email, password_hash, phone, address, role) VALUES (?, ?, ?, ?, ?, ?)");
-    foreach ($users as $u) {
-        $userStmt->execute($u);
+        $userStmt = $pdo->prepare("INSERT INTO users (name, email, password_hash, phone, address, role) VALUES (?, ?, ?, ?, ?, ?)");
+        foreach ($users as $u) {
+            $userStmt->execute($u);
+        }
+        echo "[OK] Default Admin & Technician accounts seeded.\n";
+    } else {
+        echo "[OK] Operational staff accounts already exist.\n";
     }
-    echo "[OK] Default Admin & Technician accounts seeded with secure hashes.\n";
 
-    // Clean initial state: tickets, ticket_history, ticket_comments, and reviews tables start completely clean (no mock data)
-    echo "[OK] Clean database ready for live service tickets.\n";
     echo "FixMyDevice Setup Completed Successfully!\n";
 
 } catch (Exception $e) {
