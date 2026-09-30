@@ -148,6 +148,55 @@
     </div>
 </section>
 
+<!-- Direct Technician Contact Section -->
+<section class="technician-contact-section">
+    <div class="section-container">
+        <div class="technician-contact-card">
+            <div class="technician-header">
+                <span class="sub-title"><i class="fa-solid fa-screwdriver-wrench"></i> Direct Technical Assistance</span>
+                <h2>Contact Our Hardware Technicians Directly</h2>
+                <p>Have an appliance breakdown or need emergency repair advice? Connect directly with our certified hardware technicians on duty.</p>
+            </div>
+            <div class="technician-cards-grid">
+                <div class="technician-box">
+                    <div class="technician-box-icon"><i class="fa-solid fa-wrench"></i></div>
+                    <div class="technician-box-content">
+                        <span class="technician-box-label">Senior Hardware Technician 1</span>
+                        <a href="tel:9447556907" class="technician-box-number">9447556907</a>
+                        <div class="technician-box-actions">
+                            <a href="tel:9447556907" class="btn btn-sm btn-primary"><i class="fa-solid fa-phone"></i> Call Tech</a>
+                            <a href="https://wa.me/919447556907" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-success"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="technician-box">
+                    <div class="technician-box-icon"><i class="fa-solid fa-wrench"></i></div>
+                    <div class="technician-box-content">
+                        <span class="technician-box-label">Senior Hardware Technician 2</span>
+                        <a href="tel:8137012739" class="technician-box-number">8137012739</a>
+                        <div class="technician-box-actions">
+                            <a href="tel:8137012739" class="btn btn-sm btn-primary"><i class="fa-solid fa-phone"></i> Call Tech</a>
+                            <a href="https://wa.me/918137012739" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-success"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="technician-box">
+                    <div class="technician-box-icon"><i class="fa-solid fa-wrench"></i></div>
+                    <div class="technician-box-content">
+                        <span class="technician-box-label">Senior Hardware Technician 3</span>
+                        <a href="tel:9746219299" class="technician-box-number">9746219299</a>
+                        <div class="technician-box-actions">
+                            <a href="tel:9746219299" class="btn btn-sm btn-primary"><i class="fa-solid fa-phone"></i> Call Tech</a>
+                            <a href="https://wa.me/919746219299" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-success"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- Customer Feedback & Reviews -->
 <?php if (!empty($reviews)): ?>

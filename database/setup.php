@@ -145,7 +145,9 @@ try {
 
         $users = [
             ['System Admin', 'admin@fixmydevice.com', $adminPasswordHash, '+1 800 555 0199', '100 Service HQ Blvd, Tech City', 'admin'],
-            ['Alex Miller (Technician)', 'tech@fixmydevice.com', $techPasswordHash, '+1 800 555 0244', 'Technician Center Hub 4', 'technician']
+            ['Alex Miller (Lead Tech)', 'tech@fixmydevice.com', $techPasswordHash, '9447556907', 'Technician Hub 1', 'technician'],
+            ['Field Tech 2', 'tech2@fixmydevice.com', $techPasswordHash, '8137012739', 'Technician Hub 2', 'technician'],
+            ['Field Tech 3', 'tech3@fixmydevice.com', $techPasswordHash, '9746219299', 'Technician Hub 3', 'technician']
         ];
 
         $userStmt = $pdo->prepare("INSERT INTO users (name, email, password_hash, phone, address, role) VALUES (?, ?, ?, ?, ?, ?)");

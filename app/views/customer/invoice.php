@@ -290,7 +290,7 @@
             <div class="company-address">
                 <strong>FixMyDevice Hardware Services HQ</strong><br>
                 100 Service HQ Blvd, Tech City<br>
-                Hotline: +1 (800) 555-FIX-DEV | support@fixmydevice.com<br>
+                Technician Contacts: 9447556907 / 8137012739 / 9746219299 | support@fixmydevice.com<br>
                 Web: www.fixmydevice.com
             </div>
         </div>

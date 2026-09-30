@@ -36,10 +36,14 @@
         </div>
 
         <div class="footer-col">
-            <h4>Service Hotline</h4>
+            <h4>Technician Contacts</h4>
             <div class="contact-info">
-                <p><i class="fa-solid fa-phone"></i> +1 (800) 555-FIX-DEV</p>
-                <p><i class="fa-solid fa-envelope"></i> support@fixmydevice.com</p>
+                <div class="technician-phones-list">
+                    <p><i class="fa-solid fa-wrench"></i> <span class="tech-label">Technician 1:</span> <a href="tel:9447556907">9447556907</a></p>
+                    <p><i class="fa-solid fa-wrench"></i> <span class="tech-label">Technician 2:</span> <a href="tel:8137012739">8137012739</a></p>
+                    <p><i class="fa-solid fa-wrench"></i> <span class="tech-label">Technician 3:</span> <a href="tel:9746219299">9746219299</a></p>
+                </div>
+                <p><i class="fa-solid fa-envelope"></i> <a href="mailto:support@fixmydevice.com">support@fixmydevice.com</a></p>
                 <p><i class="fa-solid fa-clock"></i> Mon - Sat: 8:00 AM - 8:00 PM</p>
                 <p><i class="fa-solid fa-location-dot"></i> 100 Service HQ Blvd, Tech City</p>
             </div>

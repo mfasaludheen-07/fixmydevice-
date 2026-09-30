@@ -27,7 +27,7 @@
                 <div class="card text-center p-5">
                     <div class="empty-icon text-danger"><i class="fa-solid fa-triangle-exclamation"></i></div>
                     <h3>Ticket Code Not Found</h3>
-                    <p>No complaint record was found matching ticket code "<strong><?= htmlspecialchars($code) ?></strong>". Please double check your code or register a new request.</p>
+                    <p>No complaint record was found matching ticket code "<strong><?= htmlspecialchars($code) ?></strong>". Please double check your code, call our technicians directly at <a href="tel:9447556907">9447556907</a> / <a href="tel:8137012739">8137012739</a> / <a href="tel:9746219299">9746219299</a>, or register a new request.</p>
                     <div class="mt-3">
                         <a href="index.php?url=ticket/create" class="btn btn-primary"><i class="fa-solid fa-plus-circle"></i> Register New Complaint</a>
                     </div>

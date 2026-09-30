@@ -32,6 +32,7 @@ $flashError = Session::getFlash('error');
 
             <a href="index.php?url=home" class="nav-link"><i class="fa-solid fa-house"></i> Home</a>
             <a href="index.php?url=track" class="nav-link"><i class="fa-solid fa-magnifying-glass"></i> Track Repair</a>
+            <a href="tel:9447556907" class="nav-link nav-technician-link" title="Direct Technician Contacts: 9447556907 / 8137012739 / 9746219299"><i class="fa-solid fa-wrench"></i> <span>Technician: 9447556907</span></a>
             
             <?php if ($isLoggedIn): ?>
                 <?php if ($role === 'customer'): ?>

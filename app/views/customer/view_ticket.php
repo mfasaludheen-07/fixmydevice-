@@ -375,7 +375,7 @@ $currentStep = $statuses[$ticket['status']] ?? 1;
                                 <h4><?= htmlspecialchars($ticket['technician_name']) ?></h4>
                                 <p><i class="fa-solid fa-envelope"></i> <?= htmlspecialchars($ticket['technician_email']) ?></p>
                                 <?php if (!empty($ticket['technician_phone'])): ?>
-                                    <p><i class="fa-solid fa-phone"></i> <?= htmlspecialchars($ticket['technician_phone']) ?></p>
+                                    <p><i class="fa-solid fa-phone"></i> <a href="tel:<?= htmlspecialchars($ticket['technician_phone']) ?>" class="tech-phone-link"><?= htmlspecialchars($ticket['technician_phone']) ?></a></p>
                                 <?php endif; ?>
                             </div>
                         </div>

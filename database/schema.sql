@@ -96,6 +96,6 @@ ON DUPLICATE KEY UPDATE name=VALUES(name);
 -- Initial Seed: Default Staff Accounts (passwords: admin123, tech123)
 INSERT INTO users (id, name, email, password_hash, phone, address, role) VALUES
 (1, 'System Admin', 'admin@fixmydevice.com', '$2y$10$OrCPakKFMwaH9YyJovxmc.J1L.YZbvEO.i9I/2yx0Kpq08faMGYKi', '+1 800 555 0199', '100 Service HQ Blvd, Tech City', 'admin'),
-(2, 'Alex Miller (Technician)', 'tech@fixmydevice.com', '$2y$10$ZdyARvDp.9hsb/AHl4z0eelYodkFKbIOgfC7MZNNuWXoD6ayVOjk6', '+1 800 555 0244', 'Technician Center Hub 4', 'technician')
+(2, 'Alex Miller (Technician)', 'tech@fixmydevice.com', '$2y$10$ZdyARvDp.9hsb/AHl4z0eelYodkFKbIOgfC7MZNNuWXoD6ayVOjk6', '9447556907', 'Technician Center Hub 4', 'technician')
 ON DUPLICATE KEY UPDATE password_hash=VALUES(password_hash), email=VALUES(email);
 

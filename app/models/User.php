@@ -24,7 +24,7 @@ class User extends Model
                 $this->create([
                     'name' => 'Alex Miller (Technician)',
                     'email' => 'tech@fixmydevice.com',
-                    'phone' => '+1 800 555 0244',
+                    'phone' => '9447556907',
                     'address' => 'Technician Center Hub 4',
                     'password' => 'tech123',
                     'role' => 'technician'
